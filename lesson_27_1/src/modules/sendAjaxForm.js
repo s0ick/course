@@ -1,17 +1,7 @@
 const sendForm = () => {
   const errorMessege = `Что-то пошло не так...`,
         statusMessage = document.createElement('div'),
-        forms = document.querySelectorAll('form'),
-        phoneInput = document.querySelectorAll('.form-phone');
-   
-  phoneInput.forEach((item) => {
-    item.addEventListener('focus', () => {
-      item.value = '+';
-    });
-    item.addEventListener('blur', () => {
-      if(item.value.length === 1) item.value = '';
-    });
-  });
+        phoneInput = document.querySelector('#form1-phone');
 
   let count = 25,
       loadIntervalBig,
@@ -39,24 +29,31 @@ const sendForm = () => {
      }
   };
 
-  forms.forEach((item) => {
-    // Валидация для инпутов
-    item.addEventListener('input', (event) => {
-      let target = event.target;
+  document.body.addEventListener('click', (event) => {
+    let target = event.target;
+    if(target.placeholder === 'Номер телефона') {
+      target.value = '+';
+    }
+  });
+  // Валидация для инпутов
+  document.body.addEventListener('input', (event) => {
+    let target = event.target;
       if(target.placeholder === 'Ваше имя' || target.placeholder === 'Ваше сообщение') {
         if(target.value.replace(/^[а-яА-ЯёЁ\s]+/g, '')) {
           target.value = target.value.substring(0, target.value.length - 1);
         } else if(target.value.trim() === '') target.value = '';
         else return;
-      } else if(target.placeholder === 'Номер телефона') { 
+      } else if(target.placeholder === 'Номер телефона') {
           if(target.value.length === 13  || target.value.slice(1).replace(/[\d]+/g, '')) {
             target.value = target.value.substring(0, target.value.length - 1);
           } else return;
-        }
-    });
-    // Action
-    item.addEventListener('submit', (event) => {
-      event.preventDefault();
+      }
+  });
+
+  // Action
+  document.body.addEventListener('submit', (event) => {
+    let target = event.target;
+    event.preventDefault();
       statusMessage.innerHTML = '';
       statusMessage.style.cssText = ` 
         border: 2px solid #eee;
@@ -65,10 +62,10 @@ const sendForm = () => {
         border-radius: 50%;
         margin: auto;
         margin-top: 10px;`;
-      item.appendChild(statusMessage);
+      target.appendChild(statusMessage);
       loadIntervalBig = requestAnimationFrame(loadingAnimateBig);
 
-      const formData = new FormData(item);
+      const formData = new FormData(target);
 
       postData(formData)  
         .then((output) => {
@@ -88,13 +85,12 @@ const sendForm = () => {
           console.error(error);
         });
 
-      for(let i = 0; i < item.elements.length; i++) {
-        if(item.elements[i].tagName === 'INPUT') {
-          item.elements[i].value = '';
+      for(let i = 0; i < target.elements.length; i++) {
+        if(target.elements[i].tagName === 'INPUT') {
+          target.elements[i].value = '';
         }
       }  
-    });
-  });   
+  });
   
   const postData = (formData) => {
     return fetch('./server.php', {
