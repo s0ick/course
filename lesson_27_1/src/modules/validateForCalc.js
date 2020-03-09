@@ -3,7 +3,7 @@ const validateForCalc = () => {
   
   calcBlock.addEventListener('input', event => {
     let target = event.target;
-    if(!item.classList.contains('calc-type')) {
+    if(!target.classList.contains('calc-type')) {
     target.textContent = target.toString().replace(/[^0-9]/);
     }
   });

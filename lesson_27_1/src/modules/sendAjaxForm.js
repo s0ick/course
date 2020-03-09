@@ -39,14 +39,13 @@ const sendForm = () => {
   document.body.addEventListener('input', (event) => {
     let target = event.target;
       if(target.placeholder === 'Ваше имя' || target.placeholder === 'Ваше сообщение') {
-        if(target.value.replace(/^[а-яА-ЯёЁ\s]+/g, '')) {
+        while(target.value.replace(/^[а-яА-ЯёЁ\s]+/g, '')) {
           target.value = target.value.substring(0, target.value.length - 1);
-        } else if(target.value.trim() === '') target.value = '';
-        else return;
+        } if(target.value.trim() === '') target.value = '';
       } else if(target.placeholder === 'Номер телефона') {
-          if(target.value.length === 13  || target.value.slice(1).replace(/[\d]+/g, '')) {
+          while(target.value.length === 13  || target.value.slice(1).replace(/[\d]+/g, '')) {
             target.value = target.value.substring(0, target.value.length - 1);
-          } else return;
+          }
       }
   });
 
@@ -66,14 +65,19 @@ const sendForm = () => {
       loadIntervalBig = requestAnimationFrame(loadingAnimateBig);
 
       const formData = new FormData(target);
-
-      postData(formData)  
+      let body = {};
+      formData.forEach((value, key) => body[key] = value);
+      
+      postData(body)  
         .then((output) => {
           if(output.status === 200) {
             statusMessage.innerHTML = '<img src="./images/tick.png">';
             cancelAnimationFrame(loadIntervalBig);
             cancelAnimationFrame(loadIntervalSmall);
             statusMessage.style.cssText = `margin-top: 10px;`;
+            setTimeout(() => {
+              statusMessage.innerHTML = '';
+            }, 3000);
           } else throw new Error('Statis network now 200');
           
         })
@@ -82,6 +86,9 @@ const sendForm = () => {
           cancelAnimationFrame(loadIntervalBig);
           cancelAnimationFrame(loadIntervalSmall);
           statusMessage.style.cssText = `margin-top: 10px;`;
+          setTimeout(() => {
+            statusMessage.innerHTML = '';
+          }, 3000);
           console.error(error);
         });
 
@@ -92,13 +99,13 @@ const sendForm = () => {
       }  
   });
   
-  const postData = (formData) => {
+  const postData = (body) => {
     return fetch('./server.php', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
       },
-      body: formData
+      body: JSON.stringify(body)
     });
   };
 };
